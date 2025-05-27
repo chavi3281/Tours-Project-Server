@@ -23,11 +23,12 @@ namespace BL.Services
             this.classs = classs;
         }
 
-        public void Create(BlClassToFlight item)
+
+        #region Create
+        public async Task Create(BlClassToFlight item)
         {
             ClassToFlight f = new ClassToFlight()
             {
-              
                 ClassId = item.ClassId,
                 ThisflightId = item.ThisflightId,
                 NumberOfSeats = item.NumberOfSeats,
@@ -36,19 +37,21 @@ namespace BL.Services
                 Hanacha = item.Hanacha,
                 Sold = item.Sold,
             };
-            dal.ClassToFlight.Create(f);
+            await dal.ClassToFlight.Create(f);
         }
+        #endregion
 
-
-
-        public List<BlClassToFlight> GetAll()
+        #region GetAll
+        public async Task<List<BlClassToFlight>> GetAll()
         {
-            var fList = dal.ClassToFlight.GetAll();
-            List<BlClassToFlight> list = new();
-            fList.ForEach(f => list.Add(castingclassToFlightFromDalToBl(f)));
-            return list;
+            var fList = await dal.ClassToFlight.GetAll();
+            List<BlClassToFlight> ctf = castingClassToFlightFromDalToBlNormalList(fList);
+            return ctf;
         }
+        #endregion
 
+
+        #region castingclassToFlightFromDalToBl
         public BlClassToFlight castingclassToFlightFromDalToBl(ClassToFlight f) => new BlClassToFlight()
         {
             Id = f.Id,
@@ -59,13 +62,16 @@ namespace BL.Services
             WeightLoad = f.WeightLoad,
             Hanacha = f.Hanacha,
             Sold = f.Sold,
-            Thisflight = thisFlight.castingOver(f.ThisflightId),
+            Thisflight = thisFlight.castingOver(f.ThisflightId).Result,
             Class = classs.castingClassFromDalToBl(f.Class),
-            
-        };
 
-        public ClassToFlight castingclassToFlightFromBlToDal(BlClassToFlight f) =>
-        new ClassToFlight()
+        };
+        #endregion
+
+
+        #region castingclassToFlightFromBlToDal
+        public ClassToFlight castingclassToFlightFromBlToDal(BlClassToFlight f) { 
+        return  new ClassToFlight()
         {
             Id = f.Id,
             ClassId = f.ClassId,
@@ -75,9 +81,12 @@ namespace BL.Services
             WeightLoad = f.WeightLoad,
             Hanacha = f.Hanacha,
             Sold = f.Sold,
-            Class = classs.castingClassFromBlToDal(f.Class),
-        };
+            Class =  classs.castingClassFromBlToDal(f.Class),
+        };        
+        }
+        #endregion
 
+        #region updateOrderCount
         public ICollection<BlClassToFlight> castingclassToFlightFromBlToDallist(ICollection<ClassToFlight> f)
         {
             List<BlClassToFlight> bf = new List<BlClassToFlight>();
@@ -96,54 +105,78 @@ namespace BL.Services
             }));
             return bf;
         }
+#endregion
 
 
-        public BlClassToFlight? GetByClassFlightId(string classs, int flight)
+        #region updateOrderCount
+        public async Task<BlClassToFlight?> GetByClassFlightId(string classs, int flight)
         {
-            ClassToFlight? f = dal.ClassToFlight.GetByClassFlightId(classs, flight);
-            return castingclassToFlightFromDalToBl(f);
+            ClassToFlight? f = await dal.ClassToFlight.GetByClassFlightId(classs, flight);
+            if (f == null) return null;
+            return  castingclassToFlightFromDalToBl(f);
         }
+        #endregion
 
-        public List<BlClassToFlight> Update(BlClassToFlight item)
+        #region updateOrderCount
+        public async Task<List<BlClassToFlight>> Update(BlClassToFlight item)
         {
-            List<ClassToFlight>? f = dal.ClassToFlight.Update(castingclassToFlightFromBlToDal(item));
+            List<ClassToFlight>? f = await dal.ClassToFlight.Update( castingclassToFlightFromBlToDal(item));
             return castingClassToFlightFromDalToBlNormalList(f);
         }
+        #endregion
 
+
+        #region updateOrderCount
         public async Task<List<BlThisFlight>> Delete(int id)
         {
             await dal.ClassToFlight.Delete(id);
             return await thisFlight.Delete(id);
         }
+#endregion
 
-        public ICollection<BlClassToFlight>? castingClassToFlightFromDalToBllist(ICollection<ClassToFlight> f)
+
+        #region updateOrderCount
+        public ICollection<BlClassToFlight>? castingClassToFlightFromDalToBllist(ICollection<ClassToFlight>? f)
         {
-            List<BlClassToFlight> bf = new List<BlClassToFlight>();
-            f.ToList().ForEach(f => bf.Add(castingclassToFlightFromDalToBl(f)));
+            if (f == null)
+                return null;
+            List<BlClassToFlight> bf = new();
+            f.ToList().ForEach(fl => bf.Add(castingclassToFlightFromDalToBl(fl)));
             return bf;
         }
+        #endregion
 
-        public List<BlClassToFlight>? castingClassToFlightFromDalToBlNormalList(List<ClassToFlight>? f)
+        #region updateOrderCount
+        public List<BlClassToFlight> castingClassToFlightFromDalToBlNormalList(List<ClassToFlight>? f)
         {
-            List<BlClassToFlight> bf = new List<BlClassToFlight>();
-            f.ForEach(f => bf.Add(castingclassToFlightFromDalToBl(f)));
-            return bf;
+            if (f == null) throw new ArgumentNullException(nameof(f));
+            List<BlClassToFlight> ctf = new();
+            f.ForEach(item => ctf.Add(castingclassToFlightFromDalToBl(item)));
+            return ctf;
         }
+#endregion
 
-        public List<BlClassToFlight> GetAllSales()
+        #region updateOrderCount
+        public async Task<List<BlClassToFlight>> GetAllSales()
         {
-            List<ClassToFlight> fList = dal.ClassToFlight.GetAllSales();
-            List<BlClassToFlight> list = new();
-            fList.ForEach(f => list.Add(castingclassToFlightFromDalToBl(f)));
-            return list;
+            List<ClassToFlight> fList = await dal.ClassToFlight.GetAllSales();
+            List<BlClassToFlight> blctf = castingClassToFlightFromDalToBlNormalList(fList);
+            return blctf;
         }
+        #endregion
 
-        public void updateOrderCount(int f, int cnt)
+
+        #region updateOrderCount
+        public async Task updateOrderCount(int f, int cnt)
         {
-            BlClassToFlight? c = GetAll().Find(x => x.Id == f);
-            if (c != null) { 
-           c.Sold = c.Sold + cnt;
-            Update(c);}
+            var ct = await GetAll();
+            BlClassToFlight? c = ct.Find(x => x.Id == f);
+            if (c != null)
+            {
+                c.Sold = c.Sold + cnt;
+                await Update(c);
+            }
         }
+        #endregion
     }
 }

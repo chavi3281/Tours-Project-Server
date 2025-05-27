@@ -17,13 +17,14 @@ namespace BL.Services
         IDal dal;
         IBlFlight flight;
 
-        public BlThisFlightService(IDal dal, IBlFlight flight/*, IBlClassToFlight classToFlight*/)
+        public BlThisFlightService(IDal dal, IBlFlight flight)
         {
             this.dal = dal;
             this.flight = flight;
         }
 
-        public Task<BlThisFlight> Create(BlThisFlight item)
+        #region Create
+        public async Task<BlThisFlight> Create(BlThisFlight item)
         {
             ThisFlight tf = new()
             {
@@ -31,25 +32,30 @@ namespace BL.Services
               Date = item.Date.ToDateTime(item.Time),
               PriceToOverLoad = item.PriceToOverLoad,
             };
-            return castingThisFlightFromDalToBl(dal.ThisFlight.Create(tf));
+            return  castingThisFlightFromDalToBl(await dal.ThisFlight.Create(tf));
             
         }
+        #endregion
 
+        #region Delete
         public async Task<List<BlThisFlight>> Delete(int id)
         {
-            await dal.ThisFlight.Delete(id);
-            return GetAll();
+           List<ThisFlight> tf =  await dal.ThisFlight.Delete(id);
+            return castingThisFlightListFromDalToBl(tf);
         }
+        #endregion
 
-        public List<BlThisFlight> GetAll()
+        #region GetAll
+        public async Task<List<BlThisFlight>> GetAll()
         {
-            var tfList = dal.ThisFlight.GetAll();
-            List<BlThisFlight> list = new();
-            tfList.ForEach(async tf => list.Add( await castingThisFlightFromDalToBl(tf)));
-            return list;
+            var tfList = await dal.ThisFlight.GetAll();
+            List<BlThisFlight> bltf = castingThisFlightListFromDalToBl(tfList);
+            return bltf;
         }
+        #endregion
 
-        public async Task<BlThisFlight> castingThisFlightFromDalToBl(ThisFlight tf) =>
+        #region castingThisFlightFromDalToBl
+        public BlThisFlight castingThisFlightFromDalToBl(ThisFlight tf) =>
                                                             new BlThisFlight()
                                                             {
                                                                 Id = tf.Id,
@@ -57,23 +63,27 @@ namespace BL.Services
                                                                 Time = TimeOnly.FromDateTime(tf.Date),
                                                                 FlightId = tf.FlightId,
                                                                 PriceToOverLoad = tf.PriceToOverLoad,
-                                                                Flight = await flight.castingOver(tf.FlightId)
-    };
+                                                                Flight =  flight.castingOver(tf.FlightId).Result};
+        #endregion
 
-        public BlThisFlight castingOver(int id)
+        #region castingOver
+        public async Task<BlThisFlight?> castingOver(int id)
         {
-            BlThisFlight? f = GetAll().Find(f => f.Id == id);
+            BlThisFlight? f =(await GetAll()).Find(f => f.Id == id);
             return f;
         }
+        #endregion
 
+        #region castingThisFlightListFromDalToBl
         public List<BlThisFlight> castingThisFlightListFromDalToBl(List<ThisFlight> tf)
         {
             List<BlThisFlight> list = new();
-            tf.ToList().ForEach(async f => list.Add(await castingThisFlightFromDalToBl(f)));
+            tf.ToList().ForEach( f => list.Add(castingThisFlightFromDalToBl(f)));
             return list;
         }
-                                                   
+        #endregion
 
+        #region castingThisFlightFromBlToDal
         public ThisFlight castingThisFlightFromBlToDal(BlThisFlight tf) =>
                                                                 new ThisFlight()
                                                                 {
@@ -82,36 +92,44 @@ namespace BL.Services
                                                                     FlightId = tf.FlightId,
                                                                     PriceToOverLoad = tf.PriceToOverLoad,
                                                                 };
+        #endregion
 
-        public List<BlThisFlight>? GetBySrcDesDate(string src, string des, DateOnly date)
+        #region GetBySrcDesDate
+        public async Task<List<BlThisFlight>?> GetBySrcDesDate(string src, string des, DateOnly date)
         {
-            List<ThisFlight>? lst = dal.ThisFlight.GetBySrcDesDate(src, des, date);
+            List<ThisFlight>? lst = await dal.ThisFlight.GetBySrcDesDate(src, des, date);
             if(lst != null)
-                return castingThisFlightListFromDalToBl(lst);
+                return  castingThisFlightListFromDalToBl(lst);
             return null;
         }
+        #endregion
 
-        public List<BlThisFlight> Update(BlThisFlight item)
+        #region Update
+        public async Task<List<BlThisFlight>> Update(BlThisFlight item)
         {
-            ThisFlight tf = dal.ThisFlight.Update(castingThisFlightFromBlToDal(item));
-            return GetAll();
+            ThisFlight tf = await dal.ThisFlight.Update( castingThisFlightFromBlToDal(item));
+            return await GetAll();
         }
+        #endregion
 
+        #region castingFlightFromBlToDallist
         public ICollection<BlThisFlight>? castingFlightFromBlToDallist(ICollection<ThisFlight> f)
         {
             List<BlThisFlight> bf = new List<BlThisFlight>();
-            f.ToList().ForEach(async f => bf.Add(await castingThisFlightFromDalToBl(f)));
-            return bf;
+            f.ToList().ForEach( f => bf.Add(castingThisFlightFromDalToBl(f)));
+            return  bf;
         }
+        #endregion
 
-
-        public List<BlThisFlight>? GetById(int id)
+        #region GetById
+        public async Task<List<BlThisFlight>?> GetById(int id)
         {
-            List<ThisFlight>? tf = dal.ThisFlight.GetById(id);
+            List<ThisFlight>? tf = await dal.ThisFlight.GetById(id);
             if(tf != null)
-            return castingThisFlightListFromDalToBl(tf);
+            return  castingThisFlightListFromDalToBl(tf);
             return null;
         }
+        #endregion
 
     }
 }

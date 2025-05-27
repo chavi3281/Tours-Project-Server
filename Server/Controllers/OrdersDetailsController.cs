@@ -4,6 +4,9 @@ using Dal.Api;
 using Dal.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Server.Controllers
 {
@@ -20,36 +23,87 @@ namespace Server.Controllers
 
         // GET: GetAll
         [HttpGet("GetAll")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            return Ok(ordersDetails.GetAll());
+            try
+            {
+                var result = await ordersDetails.GetAll();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         // GET: GetById
         [HttpGet("GetById/{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            return Ok(ordersDetails.GetById(id));
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest("Invalid order details ID");
+                }
+
+                var orderDetail = await ordersDetails.GetById(id);
+                if (orderDetail == null)
+                {
+                    return NotFound($"Order details with ID {id} not found");
+                }
+
+                return Ok(orderDetail);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
-
-
-
-
 
         // POST: Add
         [HttpPost("Add")]
-        public void Create(List<BlOrdersDetail> od)
+        public async Task<IActionResult> Create(List<BlOrdersDetail> od)
         {
-            ordersDetails.Create(od);
+            try
+            {
+                if (od == null || od.Count == 0)
+                {
+                    return BadRequest("Order details data is null or empty");
+                }
+
+                await ordersDetails.Create(od);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
-
-
 
         // DELETE 
         [HttpDelete("{idThisFlight}")]
-        public async Task<List<BlThisFlight>> Delete(int idThisFlight)
+        public async Task<IActionResult> Delete(int idThisFlight)
         {
-            return await ordersDetails.Delete(idThisFlight);
+            try
+            {
+                if (idThisFlight <= 0)
+                {
+                    return BadRequest("Invalid flight ID");
+                }
+
+                var result = await ordersDetails.Delete(idThisFlight);
+                if (result == null)
+                {
+                    return NotFound($"No order details found for flight with ID {idThisFlight}");
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
     }
 }

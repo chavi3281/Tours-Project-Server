@@ -9,10 +9,10 @@ namespace Dal.Api
 {
     public interface IFlight
     {
-        Flight? GetById(int id);
-        List<Flight> GetAll();
-        void Create(Flight item);
-        List<Flight> Update(Flight item);
-        void Delete(int id);
+        Task<Flight?> GetById(int id);
+        Task<List<Flight>> GetAll();
+        Task Create(Flight item);
+        Task<List<Flight>> Update(Flight item);
+        Task Delete(int id);
     }
 }

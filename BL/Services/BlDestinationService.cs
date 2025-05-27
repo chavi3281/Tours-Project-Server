@@ -21,29 +21,29 @@ namespace BL.Services
             this.dal = dal;
         }
 
-        public List<BlDestination> Create(BlDestination item)
+        #region Create
+        public async Task<List<BlDestination>> Create(BlDestination item)
         {
-
-
-            BlDestination? de =  GetAll().Find(d => d.Destination == item.Destination);
-            if(de == null) { 
-
-            Destination d = new()
+            var allDestinations = await GetAll();
+            BlDestination? de = allDestinations.Find(d => d.Destination == item.Destination);
+            if (de == null)
             {
-                Destination1 = item.Destination,
-                Path = item.Path,
-            };
-            //שולח לשרת ליצור את האוביקט החדש
-            List<Destination> des= dal.Destination.Create(d);
-            return castingDestinationListFromDalToBl(des);
+                Destination d = new()
+                {
+                    Destination1 = item.Destination,
+                    Path = item.Path,
+                };
+                //שולח לשרת ליצור את האוביקט החדש
+                List<Destination> des = await dal.Destination.Create(d);
+                return  await castingDestinationListFromDalToBl(des);
             }
-            return GetAll();
+            return allDestinations;
         }
+        #endregion
 
-        public void Create(List<BlDestination> item)
+        #region Create
+        public async Task Create(List<BlDestination> item)
         {
-
-
             foreach (var item1 in item)
             {
                 Destination d = new()
@@ -51,67 +51,77 @@ namespace BL.Services
                     Destination1 = item1.Destination,
                     Path = item1.Path,
                 };
-                dal.Destination.Create(d);
+                await dal.Destination.Create(d);
             }
         }
+        #endregion
 
-        public Destination castingDestinationFromBlToDal(BlDestination item) => 
-            new Destination()
+        #region castingDestinationFromBlToDal
+        public Task<Destination> castingDestinationFromBlToDal(BlDestination item) =>
+            Task.FromResult(new Destination()
             {
                 Id = item.Id,
                 Destination1 = item.Destination,
                 Path = item.Path,
-            };
+            });
+        #endregion
 
-        public List<BlDestination> castingDestinationListFromDalToBl(List<Destination> item)
+        #region castingDestinationListFromDalToBl
+        public async Task<List<BlDestination>> castingDestinationListFromDalToBl(List<Destination> item)
         {
-            List<BlDestination> des = new();
-            item.ForEach(d => des.Add(castingDestinationFromDalToBl(d)));
-            return des;
+            var tasks = item.Select(d => castingDestinationFromDalToBl(d));
+            var results = await Task.WhenAll(tasks);
+            return results.ToList();
         }
-   
+        #endregion
 
+        #region castOver
+        public async Task<BlDestination?> castOver(int id) => (await GetAll()).Find(x => x.Id == id);
+        #endregion
 
-
-        public BlDestination castOver(int id)
+        #region Delete
+        public async Task Delete(int destination)
         {
-            BlDestination d = GetAll().Find(x => x.Id == id);
-            return d;
+            await dal.Destination.Delete(destination);
         }
+#endregion
 
-        public void Delete(int destination)
+        #region GetAll
+        public async Task<List<BlDestination>> GetAll()
         {
-            dal.Destination.Delete(destination);
-        }
-
-        public List<BlDestination> GetAll()
-        {
-            var d = dal.Destination.GetAll();
+            var d = await dal.Destination.GetAll();
             List<BlDestination> list = new();
-            d.ForEach(d => list.Add(castingDestinationFromDalToBl(d)));
+            d.ForEach(async d => list.Add(await castingDestinationFromDalToBl(d)));
             return list;
         }
+        #endregion
 
-        public BlDestination? GetById(string destination)
+        #region GetById
+        public async Task<BlDestination?> GetById(string destination)
         {
-            Destination d = dal.Destination.GetById(destination);
-            return castingDestinationFromDalToBl(d);
+            Destination? d = await dal.Destination.GetById(destination);
+            if(d == null)
+                return null;
+            return await castingDestinationFromDalToBl(d);
         }
+        #endregion
 
-        public List<BlDestination> Update(BlDestination item)
+        #region Update
+        public async Task<List<BlDestination>> Update(BlDestination item)
         {
-            Destination d = dal.Destination.Update(castingDestinationFromBlToDal(item));
-            return GetAll();
+            Destination? d = await dal.Destination.Update(await castingDestinationFromBlToDal(item));
+            return await GetAll();
         }
+        #endregion
 
-        public BlDestination castingDestinationFromDalToBl(Destination d) => new BlDestination()
-        {
-            Id = d.Id,
-            Destination = d.Destination1,
-            Path = d.Path,
-            
-        };
-
-
+        #region castingDestinationFromDalToBl
+        public Task<BlDestination> castingDestinationFromDalToBl(Destination d) =>
+            Task.FromResult(new BlDestination()
+            {
+                Id = d.Id,
+                Destination = d.Destination1,
+                Path = d.Path,
+            });
+        #endregion
     }
 }

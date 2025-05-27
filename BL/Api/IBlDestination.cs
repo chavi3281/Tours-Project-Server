@@ -10,14 +10,11 @@ namespace BL.Api
 {
     public interface IBlDestination
     {
-        List<BlDestination> GetAll();
-        List<BlDestination> Create(BlDestination item);
-        BlDestination? GetById(string destination);
-
-        /*        public void Create(List<BlDestination> item);
-        */
-        List<BlDestination> Update(BlDestination item);
-        public BlDestination castOver(int d);
-        void Delete(int destination);
+        Task<List<BlDestination>> GetAll();
+        Task<List<BlDestination>> Create(BlDestination item);
+        Task<BlDestination?> GetById(string destination);
+        Task<List<BlDestination>> Update(BlDestination item);
+        Task<BlDestination?> castOver(int d);
+        Task Delete(int destination);
     }
 }

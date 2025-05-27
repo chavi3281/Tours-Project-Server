@@ -9,10 +9,10 @@ namespace Dal.Api
 {
     public interface IDestination
     {
-        Destination? GetById(string destination);
-        List<Destination> GetAll();
-        List<Destination> Create(Destination item);
-        Destination? Update(Destination item);
-        void Delete(int destination);
+        Task<Destination?> GetById(string destination);
+        Task<List<Destination>> GetAll();
+        Task<List<Destination>> Create(Destination item);
+        Task<Destination?> Update(Destination item);
+        Task Delete(int destination);
     }
 }

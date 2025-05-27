@@ -17,36 +17,70 @@ namespace Dal.Services
             this.dbcontext = data;
         }
 
-
-
-        public void Create(Class item)
+        #region Create
+        public async Task Create(Class item)
         {
-            dbcontext.Classes.Add(item);
-            dbcontext.SaveChanges();
+            await dbcontext.Classes.AddAsync(item);
+            try { 
+            await dbcontext.SaveChangesAsync();}
+            catch (Exception ex)
+            {
+                throw new Exception("cant saveChanges - class" + ex);
+            }
         }
+        #endregion
 
-        public void Delete(string description)
+        #region Delete
+        public async Task Delete(string description)
         {
-            List<Class> clist = GetAll();
-            dbcontext.Remove(clist.Find(c => c.Description == description));
-            dbcontext.SaveChanges();
+            var cll = (await GetAll()).Find(c => c.Description == description);
+            if(cll != null) { 
+            dbcontext.Remove(cll);
+                try { 
+            await dbcontext.SaveChangesAsync();}
+                catch (Exception ex)
+            {
+               throw new Exception("cant saveChanges - class" + ex);
+            }
+
+            }
         }
+        #endregion
 
-        public List<Class> GetAll() => dbcontext.Classes.Include(x => x.ClassToFlights).ToList();
+        #region GetAll
+        public async Task<List<Class>> GetAll() => await dbcontext.Classes.Include(x => x.ClassToFlights).ToListAsync();
+        #endregion
 
-        public Class? GetById(int description) => GetAll().Find(c => c.Id == description);
-
-
-
-        public Class Update(Class item)
+        #region GetById
+        public async Task<Class?> GetById(int description)
         {
-            Class c = GetAll().Find(c => c.Description == item.Description);
+           return (await GetAll()).Find(c => c.Id == description);
+        }
+        #endregion
+
+        #region Update
+        public async Task<List<Class>> Update(Class item)
+        {
+            Class? c = (await GetAll()).Find(c => c.Description == item.Description);
+            if (c == null)
+            {
+                throw new Exception($"Class with ID {item.Id} not found");
+            }
             c.Id = item.Id;
             c.Description = item.Description;
-            dbcontext.SaveChanges();
-            return c;
+            try
+            {
+               await dbcontext.SaveChangesAsync();
+                return await GetAll();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("cant saveChanges - class" + ex);
+            }
         }
+        #endregion
+
     }
 
 
-    }
+}

@@ -1,7 +1,4 @@
-﻿
-
-
-using BL.Models;
+﻿using BL.Models;
 using Dal.Models;
 using System;
 using System.Collections.Generic;
@@ -13,13 +10,11 @@ namespace BL.Api
 {
     public interface IBlFlight
     {
-        BlFlights? GetById(int id);
+        Task<BlFlights?> GetById(int id);
         Task<List<BlFlights>> GetAll();
-         Task<List<BlFlights>> Create(BlFlights item);
-        List<BlFlights> Update(BlFlights item);
-        void Delete(int id);
-/*        public BlFlights castingFlightFromDalToBl(Flight f);*/
-        public Task<BlFlights> castingOver(int f);
-        /*        ICollection<BlFlights> castingFlightFromBlToDallist(ICollection<Flight>? flightDestinationNavigations);*/
+        Task<List<BlFlights>> Create(BlFlights item);
+        Task<List<BlFlights>> Update(BlFlights item);
+        Task Delete(int id);
+        Task<BlFlights> castingOver(int f);
     }
 }

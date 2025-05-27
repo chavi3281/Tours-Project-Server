@@ -12,3 +12,17 @@ F:\תיקייה כללית חדש\שנה ב תשפה\קבוצה א\תלמידו�
 F:\תיקייה כללית חדש\שנה ב תשפה\קבוצה א\תלמידות\000000פרויקט מלי וכבי\פרויקט\projctTours\Dal\obj\Debug\net7.0\Dal.pdb
 F:\תיקייה כללית חדש\שנה ב תשפה\קבוצה א\תלמידות\000000פרויקט מלי וכבי\פרויקט\projctTours\Dal\obj\Debug\net7.0\Dal.genruntimeconfig.cache
 F:\תיקייה כללית חדש\שנה ב תשפה\קבוצה א\תלמידות\000000פרויקט מלי וכבי\פרויקט\projctTours\Dal\obj\Debug\net7.0\ref\Dal.dll
+D:\c#\Tours-Project-Server\Dal\bin\Debug\net7.0\Dal.deps.json
+D:\c#\Tours-Project-Server\Dal\bin\Debug\net7.0\Dal.runtimeconfig.json
+D:\c#\Tours-Project-Server\Dal\bin\Debug\net7.0\Dal.dll
+D:\c#\Tours-Project-Server\Dal\bin\Debug\net7.0\Dal.pdb
+D:\c#\Tours-Project-Server\Dal\obj\Debug\net7.0\Dal.csproj.AssemblyReference.cache
+D:\c#\Tours-Project-Server\Dal\obj\Debug\net7.0\Dal.GeneratedMSBuildEditorConfig.editorconfig
+D:\c#\Tours-Project-Server\Dal\obj\Debug\net7.0\Dal.AssemblyInfoInputs.cache
+D:\c#\Tours-Project-Server\Dal\obj\Debug\net7.0\Dal.AssemblyInfo.cs
+D:\c#\Tours-Project-Server\Dal\obj\Debug\net7.0\Dal.csproj.CoreCompileInputs.cache
+D:\c#\Tours-Project-Server\Dal\obj\Debug\net7.0\Dal.dll
+D:\c#\Tours-Project-Server\Dal\obj\Debug\net7.0\refint\Dal.dll
+D:\c#\Tours-Project-Server\Dal\obj\Debug\net7.0\Dal.pdb
+D:\c#\Tours-Project-Server\Dal\obj\Debug\net7.0\Dal.genruntimeconfig.cache
+D:\c#\Tours-Project-Server\Dal\obj\Debug\net7.0\ref\Dal.dll

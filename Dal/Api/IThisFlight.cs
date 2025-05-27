@@ -9,11 +9,11 @@ namespace Dal.Api
 {
     public interface IThisFlight
     {
-        List<ThisFlight>? GetBySrcDesDate(string src, string des, DateOnly date);
-        List<ThisFlight>? GetById(int id);
-        List<ThisFlight> GetAll();
-        ThisFlight Create(ThisFlight item);
-        ThisFlight Update(ThisFlight item);
-        Task Delete(int id);
+        Task<List<ThisFlight>?> GetBySrcDesDate(string src, string des, DateOnly date);
+        Task<List<ThisFlight>?> GetById(int id);
+        Task<List<ThisFlight>> GetAll();
+        Task<ThisFlight> Create(ThisFlight item);
+        Task<ThisFlight> Update(ThisFlight item);
+        Task<List<ThisFlight>> Delete(int id);
     }
 }

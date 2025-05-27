@@ -10,12 +10,12 @@ namespace BL.Api
 {
     public interface IBlClass
     {
-        List<BlClass> GetAll();
-        BlClass? GetById(int id);
-        List<BlClass> Create(BlClass item);
-        List<BlClass> Update(BlClass item);
-        List<BlClass> Delete(string description);
-        public BlClass castingClassFromDalToBl(Class c);
-        public Class castingClassFromBlToDal(BlClass c);
+        Task<List<BlClass>> GetAll();
+        Task<BlClass?> GetById(int id);
+        Task<List<BlClass>> Create(BlClass item);
+        Task<List<BlClass>> Update(BlClass item);
+        Task<List<BlClass>> Delete(string description);
+        BlClass castingClassFromDalToBl(Class c);
+        Class castingClassFromBlToDal(BlClass? c);
     }
 }

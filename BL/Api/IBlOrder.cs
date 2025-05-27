@@ -10,13 +10,13 @@ namespace BL.Api
 {
     public interface IBlOrder
     {
-        BlOrder? GetById(int id);
-        List<BlOrder>? GetByCustomerId(int id);
+        Task<BlOrder?> GetById(int id);
+        Task<List<BlOrder>?> GetByCustomerId(int id);
 
-        List<BlOrder> GetAll();
-        void Create(BlOrder item);
-        void Delete(int id);
-        List<BlOrder>? GetByClassToFlightId(int id);
+        Task<List<BlOrder>> GetAll();
+        Task Create(BlOrder item);
+        Task Delete(int id);
+        Task<List<BlOrder>?> GetByClassToFlightId(int id);
     }
 
 }

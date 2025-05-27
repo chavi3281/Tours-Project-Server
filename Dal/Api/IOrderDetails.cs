@@ -9,9 +9,9 @@ namespace Dal.Api
 {
     public interface IOrderDetails
     {
-        OrdersDetail? GetById(int id);
-        List<OrdersDetail> GetAll();
-        OrdersDetail Create(OrdersDetail item);
+        Task<OrdersDetail?> GetById(int id);
+        Task<List<OrdersDetail>> GetAll();
+        Task<OrdersDetail> Create(OrdersDetail item);
         Task Delete(int id);
 
     }

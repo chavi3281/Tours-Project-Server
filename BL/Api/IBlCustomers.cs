@@ -10,11 +10,11 @@ namespace BL.Api
 {
     public interface IBlCustomers
     {
-        List<BlCustomers> GetAll();
-        BlCustomers? GetById(string firstName, string lastName, string password);
-        BlCustomers Create(BlCustomers item);
-        BlCustomers? Update(BlCustomers item);
-        void Delete(int id);
-        public BlCustomers castingCustomerFromDalToBl(Customer c);
+        Task<List<BlCustomers>> GetAll();
+        Task<BlCustomers?> GetById(string firstName, string lastName, string password);
+        Task<BlCustomers> Create(BlCustomers item);
+        Task<BlCustomers?> Update(BlCustomers item);
+        Task Delete(int id);
+        Task<BlCustomers> castingCustomerFromDalToBl(Customer c);
     }
 }

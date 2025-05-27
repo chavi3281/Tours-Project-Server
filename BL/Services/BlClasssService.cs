@@ -12,78 +12,90 @@ namespace BL.Services
 {
     public class BlClasssService : IBlClass
     {
-
         IDal dal;
         public BlClasssService(IDal dal)
         {
             this.dal = dal;
         }
 
-        public Class castingClassFromBlToDal(BlClass c) =>
-             new Class()
-             {
-                 Id = c.Id,
-                 Description = c.Description,
-             };
+        #region castingClassFromBlToDal
+        public Class castingClassFromBlToDal(BlClass? c) {
+            if (c == null)
+                throw new ArgumentNullException("null");
+        return  new Class()
+    {
+        Id = c.Id,
+        Description = c.Description,
+         };}
+        #endregion
 
-
+        #region castingClassFromDalToBl
         public BlClass castingClassFromDalToBl(Class c) =>
-             new BlClass()
-             {
-                 Id = c.Id,
-                 Description = c.Description,
-             };
+           new BlClass()
+            {
+                Id = c.Id,
+                Description = c.Description,
+            };
 
+        #endregion
 
+        #region castingListClassFromDalToBl
         public List<BlClass> castingListClassFromDalToBl(List<Class> c)
         {
-            List<BlClass> blList = new();
-            c.ToList().ForEach(cl => blList.Add(castingClassFromDalToBl(cl)));
-            return blList;
-
+            List<BlClass> blClasses = new List<BlClass>();
+            c.ForEach(item => blClasses.Add(castingClassFromDalToBl(item)));
+            return blClasses;
         }
+        #endregion
 
-
-
-        public List<BlClass> Create(BlClass item)
+        #region Create
+        public async Task<List<BlClass>> Create(BlClass item)
         {
-            BlClass? clas = GetAll().Find(cl => cl.Id == item.Id);
+            BlClass? clas = (await GetAll()).Find(cl => cl.Id == item.Id);
             if (clas == null)
             {
                 Class clss = new()
                 {
                     Description = item.Description,
                 };
-
-                dal.Classes.Create(clss);
+                await dal.Classes.Create(clss);
             }
-            return GetAll();
+            return await GetAll();
         }
+        #endregion
 
-        public List<BlClass> Delete(string description)
+        #region Delete
+        public async Task<List<BlClass>> Delete(string description)
         {
-            dal.Classes.Delete(description);
-            return GetAll();
+            await dal.Classes.Delete(description);
+            return await GetAll();
         }
+        #endregion
 
-        public List<BlClass> GetAll()
+        #region GetAll
+        public async Task<List<BlClass>> GetAll()
         {
-            return castingListClassFromDalToBl(dal.Classes.GetAll());
-
+            return  castingListClassFromDalToBl(await dal.Classes.GetAll());
         }
+        #endregion
 
-        public BlClass? GetById(int id)
+        #region GetById
+        public async Task<BlClass?> GetById(int id)
         {
-            Class? c = dal.Classes.GetById(id);
-            if(c !=  null)
-            return castingClassFromDalToBl(c);
+            Class? c = await dal.Classes.GetById(id);
+            if (c != null)
+                return  castingClassFromDalToBl(c);
             return null;
         }
+        #endregion
 
-        public List<BlClass> Update(BlClass item)
+        #region Update
+        public async Task<List<BlClass>> Update(BlClass item)
         {
-            Class tf = dal.Classes.Update(castingClassFromBlToDal(item));
-            return GetAll();
+            List<Class> tf = await dal.Classes.Update(castingClassFromBlToDal(item));
+            return castingListClassFromDalToBl(tf);
         }
+        #endregion
+
     }
 }

@@ -9,11 +9,11 @@ namespace Dal.Api
 {
     public interface IClasses
     {
-        List<Class> GetAll();
-        Class? GetById(int description);
-        void Create(Class item);
-        Class Update(Class item);
-        void Delete(string description);
+        Task<List<Class>> GetAll();
+        Task<Class?> GetById(int description);
+        Task Create(Class item);
+        Task<List<Class>> Update(Class item);
+        Task Delete(string description);
 
     }
 }

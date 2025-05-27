@@ -3,7 +3,10 @@ using BL.Models;
 using Dal.Api;
 using Dal.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 
 namespace Server.Controllers
 {
@@ -11,7 +14,6 @@ namespace Server.Controllers
     [ApiController]
     public class ClassToFlightController : ControllerBase
     {
-
         IBlClassToFlight classToFlight;
 
         public ClassToFlightController(Ibl bl)
@@ -21,47 +23,116 @@ namespace Server.Controllers
 
         // GET: GetAll
         [HttpGet("GetAll")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            
-            return Ok(classToFlight.GetAll());
+            try
+            {
+                var result = await classToFlight.GetAll();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
-        // GET: GetAll
+        // GET: GetAllSales
         [HttpGet("GetAllSales")]
-        public IActionResult GetAllSales()
+        public async Task<IActionResult> GetAllSales()
         {
-            return Ok(classToFlight.GetAllSales());
+            try
+            {
+                var result = await classToFlight.GetAllSales();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         // GET: GetByClassFlight
         [HttpGet("GetByClassFlight/{cl}/{flightId}")]
-        public IActionResult GetByClassFlight(string cl, int flightId)
+        public async Task<IActionResult> GetByClassFlight(string cl, int flightId)
         {
-            BlClassToFlight bl = classToFlight.GetByClassFlightId(cl, flightId);
-            return Ok(bl);
-        }
+            try
+            {
+                if (string.IsNullOrEmpty(cl))
+                {
+                    return BadRequest("Class name cannot be null or empty");
+                }
 
+                var bl = await classToFlight.GetByClassFlightId(cl, flightId);
+                
+
+                return Ok(bl);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
 
         // POST: Add
         [HttpPost("Add")]
-        public void Create(BlClassToFlight ctf)
+        public async Task<IActionResult> Create(BlClassToFlight ctf)
         {
-            classToFlight.Create(ctf);
+            try
+            {
+                if (ctf == null)
+                {
+                    return BadRequest("Class to flight data is null");
+                }
+
+                await classToFlight.Create(ctf);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         // PUT
         [HttpPut("Update")]
-        public IActionResult Put(BlClassToFlight ctf)
+        public async Task<IActionResult> Put(BlClassToFlight ctf)
         {
-            return Ok(classToFlight.Update(ctf));
+            try
+            {
+                if (ctf == null)
+                {
+                    return BadRequest("Class to flight data is null");
+                }
+
+                var result = await classToFlight.Update(ctf);
+                
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         // DELETE 
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            classToFlight.Delete(id);
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest("Invalid ID");
+                }
+
+                await classToFlight.Delete(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
     }
 }

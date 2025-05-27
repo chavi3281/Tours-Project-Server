@@ -18,29 +18,49 @@ namespace Dal.Services
             dbcontext = data;
         }
 
+        #region Create
         public async Task<Order> Create(Order item)
         {
-           var cc= await dbcontext.Orders.AddAsync(item);
-           await dbcontext.SaveChangesAsync();
-            return cc.Entity;
+           var cc = await dbcontext.Orders.AddAsync(item);
+            try
+            {
+                await dbcontext.SaveChangesAsync();
+                return cc.Entity;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("cant saveChanges - Order" + ex);
+            }
         }
+        #endregion
 
-        public void Delete(int id)
+        #region Delete
+        public async Task Delete(int id)
         {
-            List<Order>? olist = GetAll().FindAll(d => d.Id == id);
-            if(olist != null) { 
-            dbcontext.RemoveRange(olist);
-            dbcontext.SaveChanges();}
+            List<Order>? olist = (await GetAll()).FindAll(d => d.Id == id);
+            if (olist != null)
+            {
+                dbcontext.RemoveRange(olist);
+                try
+                {
+                    await dbcontext.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("cant saveChanges - Customer" + ex);
+                }
+            }
         }
+        #endregion
 
-        public List<Order> GetAll() => dbcontext.Orders.Include(a => a.IdCustomerNavigation).Include(a => a.OrdersDetails).ThenInclude(c => c.IdClassToFlightNavigation).ThenInclude(cl => cl.Class).ToList();
-    
+        #region GetAll
+        public async Task<List<Order>> GetAll() => await dbcontext.Orders.Include(a => a.IdCustomerNavigation)
+                                                                         .Include(a => a.OrdersDetails).ThenInclude(c => c.IdClassToFlightNavigation)
+                                                                                                       .ThenInclude(cl => cl.Class).ToListAsync();
+        #endregion
 
-        public Order? GetById(int id)
-        {
-           Order? o = GetAll().Find(o => o.Id == id);
-            return o;
-        }
-
+        #region
+        public async Task<Order?> GetById(int id) => (await GetAll()).Find(ord => ord.Id == id);
+        #endregion
     }
 }

@@ -10,14 +10,12 @@ namespace BL.Api
 {
     public interface IBlThisFlight
     {
-        List<BlThisFlight>? GetBySrcDesDate(string src, string des, DateOnly date);
-        List<BlThisFlight>? GetById(int id);
-        List<BlThisFlight> GetAll();
+        Task<List<BlThisFlight>?> GetBySrcDesDate(string src, string des, DateOnly date);
+        Task<List<BlThisFlight>?> GetById(int id);
+        Task<List<BlThisFlight>> GetAll();
         Task<BlThisFlight> Create(BlThisFlight item);
         Task<List<BlThisFlight>> Delete(int id);
-         List<BlThisFlight> Update(BlThisFlight item);
-
-        public BlThisFlight castingOver(int id);
-
+        Task<List<BlThisFlight>> Update(BlThisFlight item);
+        Task<BlThisFlight?> castingOver(int id);
     }
 }

@@ -17,47 +17,70 @@ namespace Dal.Services
             this.dbcontext = data;
         }
 
-        public List<Destination> Create(Destination item)
+        #region Create
+        public async Task<List<Destination>> Create(Destination item)
         {
-            dbcontext.Destinations.Add(item);
-            dbcontext.SaveChanges();
-            return GetAll();
-
-        }
-
-        public void Delete(int destination)
-        {
-            List<Destination> dlist = GetAll();
-            dbcontext.Remove(dlist.Find(d => d.Id == destination));
-            dbcontext.SaveChanges();
-        }
-
-        public List<Destination> GetAll() {
-            if (dbcontext == null) { 
-                dbcontext = new dbcontext();
-             return   dbcontext.Destinations.Include(d => d.FlightSourceNavigations).Include(d => d.FlightDestinationNavigations).ToList();
-            }
-            else
+           await dbcontext.Destinations.AddAsync(item);
+            try
             {
-                return dbcontext.Destinations.Include(d => d.FlightSourceNavigations).Include(d => d.FlightDestinationNavigations).ToList();
-
+                await dbcontext.SaveChangesAsync();
             }
-        } 
-            
+            catch (Exception ex)
+            {
+                throw new Exception("cant saveChanges - Destination" + ex);
+            }
+            return await GetAll();
+        }
+        #endregion
 
-
-        public Destination? GetById(string destination) => GetAll().Find(d => d.Destination1 == destination);
-
-
-
-        public Destination? Update(Destination item)
+        #region Delete
+        public async Task Delete(int destination)
         {
-            Destination? d = GetAll().Find(d => d.Id == item.Id);
+            var d = (await GetAll()).Find(d => d.Id == destination);
+            if(d != null) { 
+             dbcontext.Remove(d);
+                try
+                {
+                    await dbcontext.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("cant saveChanges - Destination" + ex);
+                }
+            }
+        }
+        #endregion
+
+        #region GetAll
+        public async Task<List<Destination>> GetAll() => await dbcontext.Destinations.Include(d => d.FlightSourceNavigations)
+                                                                                     .Include(d => d.FlightDestinationNavigations).ToListAsync();
+
+        #endregion
+
+        #region GetById
+        public async Task<Destination?> GetById(string destination) => (await GetAll()).Find(d => d.Destination1 == destination);
+
+        #endregion
+
+        #region Update
+        public async Task<Destination?> Update(Destination item)
+        {
+            Destination? d = (await GetAll()).Find(d => d.Id == item.Id);
+            if(d == null) 
+                return null;
             d.Destination1 = item.Destination1;
             d.Path = item.Path;
-            dbcontext.SaveChanges();
+            try
+            {
+                await dbcontext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("cant saveChanges - Destination" + ex);
+            }
             return d;
         }
+        #endregion
 
     }
 }

@@ -17,32 +17,52 @@ namespace Dal.Services
             this.dbcontext = data;
         }
 
-        public OrdersDetail Create(OrdersDetail item)
+        #region Create
+        public async Task<OrdersDetail> Create(OrdersDetail item)
         {
-            dbcontext.Add(item);
-            dbcontext.SaveChanges();
-            return item;
+           await dbcontext.AddAsync(item);
+
+            try
+            {
+               await dbcontext.SaveChangesAsync();
+                return item;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("cant saveChanges - orderDetails" + ex);
+            }
+        }
+        #endregion
+
+        #region GetAll
+        public async Task<List<OrdersDetail>> GetAll()
+        {
+            return await dbcontext.OrdersDetails.Include(x => x.Order)
+                                                .Include(x => x.IdClassToFlightNavigation).ThenInclude(c => c.Class)
+                                                .Include(x => x.IdClassToFlightNavigation).ThenInclude(f => f.Thisflight).ToListAsync();
         }
 
-        public List<OrdersDetail> GetAll()
-        {
-            return dbcontext.OrdersDetails.Include(x => x.Order)
-                                          .Include(x => x.IdClassToFlightNavigation).ThenInclude(c => c.Class)
-                                          .Include(x => x.IdClassToFlightNavigation).ThenInclude(f => f.Thisflight).ToList();
-        }
+        #endregion
+
+        #region Delete
         public async Task Delete(int id)
         {
-             List<OrdersDetail> olist =  GetAll();
-            OrdersDetail? o = olist.Find(d => d.IdClassToFlightNavigation.ThisflightId == id);
+            List<OrdersDetail>? o = (await GetAll()).FindAll(d => d.IdClassToFlightNavigation.ThisflightId == id);
             if(o != null) { 
-            dbcontext.Remove(o);
-            dbcontext.SaveChangesAsync();}
+            dbcontext.RemoveRange(o);
+            try { 
+             await dbcontext.SaveChangesAsync();
+            }catch (Exception ex)
+            {
+                    throw new Exception("cant saveChanges - orderDetails" + ex);
+            }
+            }
         }
-        public OrdersDetail? GetById(int id)
-        {
-            OrdersDetail? o = GetAll().Find(o => o.Id == id);
-            return o;
-        }
+        #endregion
+
+        #region GetById
+        public async Task<OrdersDetail?> GetById(int id) => (await GetAll()).Find(o => o.Id == id);
+        #endregion
     }
 }
 

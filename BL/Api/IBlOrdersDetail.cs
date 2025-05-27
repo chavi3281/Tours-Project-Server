@@ -10,12 +10,11 @@ namespace BL.Api
 {
     public interface IBlOrdersDetail
     {
-        BlOrdersDetail? GetById(int id);
-        List<BlOrdersDetail>? GetByClassToFlightId(int id);
-        List<BlOrdersDetail> GetAll();
-
+        Task<BlOrdersDetail?> GetById(int id);
+        Task<List<BlOrdersDetail>?> GetByClassToFlightId(int id);
+        Task<List<BlOrdersDetail>> GetAll();
         ICollection<BlOrdersDetail> castingOrderDetailFromDalToBl(ICollection<OrdersDetail> item);
         Task<List<BlThisFlight>> Delete(int id);
-        void Create(ICollection<BlOrdersDetail> ordersDetails);
+        Task Create(ICollection<BlOrdersDetail> ordersDetails);
     }
 }

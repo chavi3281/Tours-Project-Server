@@ -2,6 +2,8 @@
 using BL.Models;
 using Dal.Models;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -21,38 +23,99 @@ namespace Server.Controllers
 
         // GET: GetAll
         [HttpGet("GetAll")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            return Ok(customers.GetAll());
+            try
+            {
+                var result = await customers.GetAll();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         // GET: GetById
         [HttpGet("GetById/{firstName}/{lastName}/{password}")]
-        public IActionResult GetById(string firstName, string lastName, string password)
+        public async Task<IActionResult> GetById(string firstName, string lastName, string password)
         {
-            return Ok(customers.GetById(firstName, lastName, password));
-        }
+            try
+            {
+                if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(password))
+                {
+                    return BadRequest("First name, last name, and password cannot be null or empty");
+                }
 
+                var customer = await customers.GetById(firstName, lastName, password);
+
+                return Ok(customer);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
 
         // POST: Add
         [HttpPost("Add")]
-        public IActionResult Create(BlCustomers customer)
+        public async Task<IActionResult> Create(BlCustomers customer)
         {
-           return Ok(customers.Create(customer));
+            try
+            {
+                if (customer == null)
+                {
+                    return BadRequest("Customer data is null");
+                }
+
+                var result = await customers.Create(customer);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         // PUT
         [HttpPut("Update")]
-        public IActionResult Put(BlCustomers customer)
+        public async Task<IActionResult> Put(BlCustomers customer)
         {
-            return Ok(customers.Update(customer));
+            try
+            {
+                if (customer == null)
+                {
+                    return BadRequest("Customer data is null");
+                }
+
+                var result = await customers.Update(customer);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         // DELETE 
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            customers.Delete(id);
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest("Invalid customer ID");
+                }
+
+                await customers.Delete(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
     }
 }

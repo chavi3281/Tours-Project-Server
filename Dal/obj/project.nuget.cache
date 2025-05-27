@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "JuDWrFkvXPBksDYQAaSpYFxbV4ycGKD93QbRWmCGzW4l9/fdGm8MFyIpPMannCtMQrguWqA1lKUx7BF1yXD9ZQ==",
+  "dgSpecHash": "O1sMZMiPCe4Ru4Iot8+GnydR5XoUKZr0S2rRfMgOE4ZWUmAkOgTC1lLNDAgT/tBu8W0TLUhOpzg9XyTODJJc3A==",
   "success": true,
-  "projectFilePath": "F:\\תיקייה כללית חדש\\שנה ב תשפה\\קבוצה א\\תלמידות\\000000פרויקט מלי וכבי\\פרויקט\\projctTours\\Dal\\Dal.csproj",
+  "projectFilePath": "D:\\c#\\Tours-Project-Server\\Dal\\Dal.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\angular\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\angular\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",

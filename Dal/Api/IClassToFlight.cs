@@ -9,12 +9,12 @@ namespace Dal.Api
 {
     public interface IClassToFlight
     {
-        ClassToFlight? GetByClassFlightId(string classs, int flightId);
-        List<ClassToFlight> GetAll();
-        void Create(ClassToFlight item);
-        List<ClassToFlight> Update(ClassToFlight item);
+        Task<ClassToFlight?> GetByClassFlightId(string classs, int flightId);
+        Task<List<ClassToFlight>> GetAll();
+        Task Create(ClassToFlight item);
+        Task<List<ClassToFlight>> Update(ClassToFlight item);
 
-        List<ClassToFlight> GetAllSales();
+        Task<List<ClassToFlight>> GetAllSales();
         Task Delete(int id);
     }
 }

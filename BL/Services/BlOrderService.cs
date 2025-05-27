@@ -22,7 +22,8 @@ namespace BL.Services
             this.detail = detail;
         }
 
-        public async void Create(BlOrder item)
+        #region Create
+        public async Task Create(BlOrder item)
         {
             Order o = await dal.Order.Create(new Order()
             {
@@ -30,66 +31,84 @@ namespace BL.Services
                 Price = item.Price,
                 Date = item.Date.ToDateTime(TimeOnly.MinValue),
             });
-
-            item.OrdersDetails.ToList().ForEach(ord => ord.IdOrder = o.Id);
-
-
-            detail.Create(item.OrdersDetails);
+            foreach (var ord in item.OrdersDetails)
+            {
+                ord.IdOrder = o.Id;
+            }
+            await detail.Create(item.OrdersDetails);
         }
+        #endregion
 
-        public void Delete(int id)
+        #region Delete
+        public async Task Delete(int id)
         {
-            dal.Order.Delete(id);
+            await dal.Order.Delete(id);
         }
+        #endregion
 
-        public List<BlOrder> GetAll()
+        #region GetAll
+        public async Task<List<BlOrder>> GetAll()
         {
-            var oList = dal.Order.GetAll();
+            var oList = await dal.Order.GetAll();
             List<BlOrder> list = new();
-            oList.ForEach(o => list.Add(castingOrderFromDalToBl(o)));
+            var tasks = oList.Select(o => castingOrderFromDalToBl(o));
+            var results = await Task.WhenAll(tasks);
+            list.AddRange(results);
             return list;
         }
+        #endregion
 
-        public BlOrder? GetById(int id)
+        #region GetById
+        public async Task<BlOrder?> GetById(int id)
         {
-            Order? o = dal.Order.GetById(id);
-            if(o != null)
-            return castingOrderFromDalToBl(o);
+            Order? o = await dal.Order.GetById(id);
+            if (o != null)
+                return await castingOrderFromDalToBl(o);
             return null;
-
         }
+        #endregion
 
-        public BlOrder castingOrderFromDalToBl(Order o) =>
-                                                            new BlOrder()
-                                                            {
-                                                                Id = o.Id,
-                                                                IdCustomer = o.IdCustomer,
-                                                                Date = DateOnly.FromDateTime(o.Date),
-                                                                Price = o.Price,
-                                                                IdCustomerNavigation = customers.castingCustomerFromDalToBl(o.IdCustomerNavigation),
-                                                                OrdersDetails = detail.castingOrderDetailFromDalToBl(o.OrdersDetails),
-                                                            };
+        #region castingOrderFromDalToBl
+        public async Task<BlOrder> castingOrderFromDalToBl(Order o) =>
+            new BlOrder()
+            {
+                Id = o.Id,
+                IdCustomer = o.IdCustomer,
+                Date = DateOnly.FromDateTime(o.Date),
+                Price = o.Price,
+                IdCustomerNavigation = await customers.castingCustomerFromDalToBl(o.IdCustomerNavigation),
+                OrdersDetails =  detail.castingOrderDetailFromDalToBl(o.OrdersDetails),
+            };
+        #endregion
 
+        #region castingOrderFromBlToDal
         public Order castingOrderFromBlToDal(BlOrder o) =>
-                                                                new Order()
-                                                                {
-                                                                    Id = o.Id,
-                                                                    IdCustomer = o.IdCustomer,
-                                                                    Price = o.Price,
-                                                                    Date = o.Date.ToDateTime(TimeOnly.MinValue),
-                                                                };
+        new Order()
+         {
+             Id = o.Id,
+             IdCustomer = o.IdCustomer,
+             Price = o.Price,
+             Date = o.Date.ToDateTime(TimeOnly.MinValue),
+         };
+        #endregion
 
-        public List<BlOrder>? GetByCustomerId(int id)
+        #region GetByCustomerId
+        public async Task<List<BlOrder>?> GetByCustomerId(int id)
         {
-            return GetAll().FindAll(o => o.IdCustomer == id);
+            var or = await GetAll();
+            return or.FindAll(o => o.IdCustomer == id);
         }
+        #endregion
 
-        public List<BlOrder>? GetByClassToFlightId(int id)
+        #region GetByClassToFlightId
+        public async Task<List<BlOrder>?> GetByClassToFlightId(int id)
         {
-            List<BlOrdersDetail>? list = detail.GetByClassToFlightId(id);
-            if(list == null) return null;
-            List<BlOrder>? all = GetAll();
+            List<BlOrdersDetail>? list = await detail.GetByClassToFlightId(id);
+            if (list == null) return null;
+
+            List<BlOrder>? all = await GetAll();
             List<BlOrder>? result = new();
+
             for (int i = 0; i < all.Count; i++)
             {
                 for (int j = 0; j < all[i].OrdersDetails.Count; j++)
@@ -104,6 +123,6 @@ namespace BL.Services
             }
             return result;
         }
+        #endregion
     }
 }
-            

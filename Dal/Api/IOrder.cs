@@ -9,10 +9,10 @@ namespace Dal.Api
 {
     public interface IOrder
     {
-        Order? GetById(int id);
-        List<Order> GetAll();
+        Task<Order?> GetById(int id);
+        Task<List<Order>> GetAll();
         Task<Order> Create(Order item);
-        void Delete(int id);
+        Task Delete(int id);
 
     }
 }

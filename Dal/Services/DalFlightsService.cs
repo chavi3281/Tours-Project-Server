@@ -17,38 +17,70 @@ namespace Dal.Services
             this.db = db;
         }
 
-        public void Create(Flight item)
+        #region Create
+        public async Task Create(Flight item)
         {
 
-            db.Flights.Add(item);
-            db.SaveChanges();
+            await db.Flights.AddAsync(item);
+            try
+            {
+                await db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("cant saveChanges - Flight" +ex);
+            }
         }
+#endregion
 
-        public void Delete(int id)
+        #region Delete
+        public async Task Delete(int id)
         {
-            List<Flight> fList = GetAll();
-            db.Remove(fList.Find(f => f.Id == id));
-            db.SaveChanges();
+            var fl = (await GetAll()).Find(f => f.Id == id);
+            if(fl != null) { 
+            db.Remove(fl);
+                try
+                {
+                    await db.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("cant saveChanges - Flight" + ex);
+                }
+            }
         }
+#endregion
 
-        public List<Flight> GetAll() => db.Flights
-/*            .Include(x => x.ThisFlights)*/
-            .Include(c=> c.DestinationNavigation).Include(a=> a.SourceNavigation).ToList();
+        #region GetAll
+        public async Task<List<Flight>> GetAll() => await db.Flights.Include(c=> c.DestinationNavigation)
+                                                                    .Include(a=> a.SourceNavigation).ToListAsync();
+        #endregion
 
+        #region GetById
+        public async Task<Flight?> GetById(int id) => (await GetAll()).Find(x => x.Id == id);
+        #endregion
 
-        public Flight? GetById(int id) => GetAll().Find(x => x.Id == id);
-
-        public List<Flight> Update(Flight item)
+        #region Update
+        public async Task<List<Flight>> Update(Flight item)
         {
-            Flight f = GetAll().Find(x => x.Id == item.Id);
+            Flight? f = (await GetAll()).Find(x => x.Id == item.Id);
+            if (f != null) { 
             f.Id = item.Id;
             f.Source = item.Source;
             f.Destination = item.Destination;
             f.TimeOfFlight = item.TimeOfFlight;
-            f.Sold = item.Sold;
-            db.SaveChanges();
-            return GetAll();
+            f.Sold = item.Sold;}
+            try
+            {
+                await db.SaveChangesAsync();
+                return await GetAll();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("cant saveChanges - Customer" + ex);
+            } 
         }
+        #endregion
     }
 
 }

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Dal.Api;
 using Dal.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Dal.Services
 {
@@ -19,56 +20,76 @@ namespace Dal.Services
             dbcontext = data;
         }
 
-        public void Create(ClassToFlight item)
+        #region Create
+        public async Task Create(ClassToFlight item)
         {
-            dbcontext.ClassToFlights.Add(item);
-            dbcontext.SaveChanges();
+           await dbcontext.ClassToFlights.AddAsync(item);
+            try
+            {
+                await dbcontext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("cant saveChanges - classToFlight" + ex);
+            }
         }
+        #endregion
 
+        #region Delete
         public async Task Delete(int id)
         {
-            List<ClassToFlight> fList = GetAll().FindAll(f => f.Thisflight.Id == id);
+            List<ClassToFlight> fList = (await GetAll()).FindAll(f => f.Thisflight.Id == id);
             if(fList != null) { 
             dbcontext.RemoveRange(fList);
-            await dbcontext.SaveChangesAsync();}
-        }
-
-        public  List<ClassToFlight> GetAll()
-        {
-            if(dbcontext.ClassToFlights == null)
-            {
-                return null;
+                try
+                {
+                    await dbcontext.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("cant saveChanges - orderDetails" + ex);
+                }
             }
-            else
-            {
-              var x=  dbcontext.ClassToFlights.Include(x => x.Class).Include(x => x.Thisflight).ToList();
-                return x;
-            }
-        } 
-
-        public List<ClassToFlight> GetAllSales()
-        {
-            List<ClassToFlight> ctf = GetAll().FindAll(x => x.Hanacha > 0);
-            return ctf;
         }
+        #endregion
 
-
-        //no use
-        public ClassToFlight? GetByClassFlightId(string classs, int flightId)
+        #region GetAll
+        public async Task<List<ClassToFlight>> GetAll()
         {
- 
-            ClassToFlight? c = GetAll().Find(c => c.Class.Description == classs);
-            if(c == null) { return c; }
+              return await dbcontext.ClassToFlights.Include(x => x.Class)
+                                                   .Include(x => x.Thisflight).ToListAsync();
+         }
+        #endregion
+
+        #region GetAllSales
+        public async Task<List<ClassToFlight>> GetAllSales()
+        {  
+            return (await GetAll()).FindAll(x => x.Hanacha > 0 && DateTime.Now < x.Thisflight.Date);
+
+        }
+        #endregion
+
+        #region GetByClassFlightId
+        public async Task<ClassToFlight?> GetByClassFlightId(string classs, int flightId)
+        {
+            var ctf = await GetAll();
+            ClassToFlight? c = ctf.Find(c => c.Class.Description == classs);
+            if (c == null) { return c; }
             Class cl = c.Class;
-           ClassToFlight? classToFlight = GetAll().Find(f => f.ClassId == cl.Id && f.ThisflightId == flightId);
+            ClassToFlight? classToFlight =  ctf.Find(f => f.ClassId == cl.Id && f.ThisflightId == flightId && DateTime.Now < f.Thisflight.Date);
             return classToFlight;
-           }
+        }
+        #endregion
 
-
-        public List<ClassToFlight> Update(ClassToFlight item)
+        #region Update
+        public async Task<List<ClassToFlight>> Update(ClassToFlight item)
         {
-            ClassToFlight? f = GetAll().Find(x => x.Id == item.Id);
+            ClassToFlight? f = (await GetAll()).Find(x => x.Id == item.Id);
 
+            if (f == null)
+            {
+                throw new Exception($"ClassToFlight with ID {item.Id} not found");
+            }
             f.ClassId = item.ClassId;
             f.ThisflightId = item.ThisflightId;
             f.NumberOfSeats = item.NumberOfSeats;
@@ -76,17 +97,18 @@ namespace Dal.Services
             f.WeightLoad = item.WeightLoad;
             f.Hanacha = item.Hanacha;
             f.Sold = item.Sold;
-       
-            dbcontext.SaveChanges();
-            return GetAll();
-
+            try
+            {
+               await dbcontext.SaveChangesAsync();
+                return await GetAll();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("cant saveChanges - orderDetails" + ex);
+            }
         }
-
+        #endregion
 
     }
-
-
-
-
 }
 

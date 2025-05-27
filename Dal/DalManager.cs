@@ -12,7 +12,7 @@ namespace Dal
 {
     public class DalManager: IDal
     {
-        dbcontext data = new dbcontext();
+        dbcontext data;
         public ICustomers Customers { get; }
 
         public IFlight Flights { get; }
@@ -29,6 +29,7 @@ namespace Dal
 
         public DalManager()
         {
+            data = new dbcontext();
             Customers = new DalCustomersServices(data);
             Flights = new DalFlightsService(data);
             Classes = new DalClassService(data);

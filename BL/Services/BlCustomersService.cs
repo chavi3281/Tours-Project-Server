@@ -15,84 +15,98 @@ namespace BL.Services
     internal class BlCustomersService : IBlCustomers
     {
         IDal dal;
-
         public BlCustomersService(IDal dal)
         {
             this.dal = dal;
         }
 
-        public BlCustomers Create(BlCustomers item)
+        #region Create
+        public async Task<BlCustomers?> Create(BlCustomers item)
         {
-            BlCustomers? c = GetById(item.FirstName, item.LastName, item.Password);
+            if(item.FirstName == null) 
+                throw new ArgumentNullException(nameof(item.FirstName));
+            BlCustomers? c = await GetById(item.FirstName, item.LastName, item.Password);
             if (c == null)
             {
-                //יצירת אוביקט מסוג לקוח ומעתיק אליו את הנתונים
                 Customer customer = new Customer()
-            {
-                Password = item.Password,
-                IsManager = item.IsManager,
-                FirstName = item.FirstName,
-                LastName = item.LastName,
-                Email = item.Email,
-                Phone = item.Phone
-            };
-            //שולח לשרת ליצור את האוביקט החדש
-            customer =  dal.Customers.Create(customer);
-            return castingCustomerFromDalToBl(customer);
+                {
+                    Password = item.Password,
+                    IsManager = item.IsManager,
+                    FirstName = item.FirstName,
+                    LastName = item.LastName,
+                    Email = item.Email,
+                    Phone = item.Phone
+                };
+                customer = await dal.Customers.Create(customer);
+                return await castingCustomerFromDalToBl(customer);
             }
             return null;
         }
+        #endregion
 
-        public List<BlCustomers> GetAll()
+        #region GetAll
+        public async Task<List<BlCustomers>> GetAll()
         {
-            // מעביר את הפרמטרים הרצויים לרשימה
-            var cList = dal.Customers.GetAll();
+            var cList = await dal.Customers.GetAll();
             List<BlCustomers> list = new();
-            cList.ForEach(c => list.Add(castingCustomerFromDalToBl(c)));
+            cList.ForEach(async c => list.Add(await castingCustomerFromDalToBl(c)));
             return list;
         }
+        #endregion
 
-        public Customer castingCustomerFromBlToDal(BlCustomers item) => new Customer()
-                                                                        {
-                                                                            Id = item.Id,
-                                                                            Password = item.Password,
-                                                                            FirstName = item.FirstName,
-                                                                            LastName = item.LastName,
-                                                                            Email = item.Email,
-                                                                            Phone = item.Phone,
-                                                                            IsManager = item.IsManager
-        };
+        #region castingCustomerFromBlToDal
+        public Task<Customer> castingCustomerFromBlToDal(BlCustomers item) =>
+            Task.FromResult(new Customer()
+            {
+                Id = item.Id,
+                Password = item.Password,
+                FirstName = item.FirstName,
+                LastName = item.LastName,
+                Email = item.Email,
+                Phone = item.Phone,
+                IsManager = item.IsManager
+            });
+        #endregion
 
-        public BlCustomers castingCustomerFromDalToBl(Customer item) => new BlCustomers()        
-                                                                        {
-                                                                            Id = item.Id,
-                                                                            FirstName = item.FirstName,
-                                                                            LastName = item.LastName,
-                                                                            Email = item.Email,
-                                                                            Phone = item.Phone,
-                                                                            Password = item.Password,
-                                                                            IsManager = item.IsManager
-        };
-        public BlCustomers? GetById(string firstName, string lastName, string password)
+        #region castingCustomerFromDalToBl
+        public Task<BlCustomers> castingCustomerFromDalToBl(Customer item) =>
+            Task.FromResult(new BlCustomers()
+            {
+                Id = item.Id,
+                FirstName = item.FirstName,
+                LastName = item.LastName,
+                Email = item.Email,
+                Phone = item.Phone,
+                Password = item.Password,
+                IsManager = item.IsManager
+            });
+        #endregion
+
+        #region GetById
+        public async Task<BlCustomers?> GetById(string firstName, string lastName, string password)
         {
-            Customer c = dal.Customers.GetById(firstName, lastName, password);
-            if (c == null) 
+            Customer? c = await dal.Customers.GetById(firstName, lastName, password);
+            if (c == null)
                 return null;
-            return castingCustomerFromDalToBl(c);
+            return  await castingCustomerFromDalToBl(c);
         }
+        #endregion
 
-        public BlCustomers? Update(BlCustomers item) {
-            Customer c = castingCustomerFromBlToDal(item);
-            c = dal.Customers.Update(c);
-            return castingCustomerFromDalToBl(c);
-        }
-
-        public void Delete(int id)
+        #region Update
+        public async Task<BlCustomers?> Update(BlCustomers item)
         {
-            dal.Customers.Delete(id);
-
+            Customer? c = await castingCustomerFromBlToDal(item);
+            c = await dal.Customers.Update(c);
+            if (c == null) return null;
+            return  await castingCustomerFromDalToBl(c);
         }
+        #endregion
 
-     
+        #region Delete
+        public async Task Delete(int id)
+        {
+            await dal.Customers.Delete(id);
+        }
+        #endregion
     }
 }
